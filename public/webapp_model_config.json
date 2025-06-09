@@ -1,0 +1,23 @@
+
+{
+  "models": {
+    "best_model": {
+      "modelUrl": "./tfjs_best_model/model.json",
+      "inputShape": [150, 150, 3],
+      "imageSize": 150,
+      "name": "Kaggle Best Model",
+      "description": "Trained model with 99.6% accuracy"
+    }
+  },
+  "defaultModel": "best_model",
+  "classes": [
+    "Apple", "Banana", "Carambola", "Guava", "Kiwi",
+    "Mango", "Orange", "Peach", "Pear", "Persimmon", 
+    "Pitaya", "Plum", "Pomegranate", "Tomatoes", "muskmelon"
+  ],
+  "preprocessing": {
+    "normalization": "0-1",
+    "resizeMethod": "bilinear",
+    "description": "Resize to 150x150 and normalize to [0,1] range (same as Kaggle training)"
+  }
+}
