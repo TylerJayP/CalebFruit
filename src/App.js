@@ -7,12 +7,31 @@ import InventorySection from './components/InventorySection';
 import GrocerySection from './components/GrocerySection';
 import RecipeSection from './components/RecipeSection';
 
-// Fruit classes matching your Kaggle model (15 fruits with 99.6% accuracy)
-const FRUIT_CLASSES = [
-  'apple', 'banana', 'carambola', 'guava', 'kiwi', 
-  'mango', 'muskmelon', 'orange', 'peach', 'pear', 
-  'persimmon', 'pitaya', 'plum', 'pomegranate', 'tomato'
-];
+// Load model configuration
+const loadModelConfig = async () => {
+  try {
+    const response = await fetch('/webapp_model_config.json');
+    return await response.json();
+  } catch (error) {
+    console.warn('Could not load model config, using defaults');
+    return {
+      models: {
+        better_model: {
+          modelUrl: "./better_model/model.json",
+          inputShape: [224, 224, 3],
+          imageSize: 224,
+          name: "Better Fruit Classification Model"
+        }
+      },
+      defaultModel: "better_model",
+      classes: [
+        'apple', 'banana', 'carambola', 'guava', 'kiwi', 
+        'mango', 'muskmelon', 'orange', 'peach', 'pear', 
+        'persimmon', 'pitaya', 'plum', 'pomegranate', 'tomato'
+      ]
+    };
+  }
+};
 
 // Fruit emoji mapping for UI display
 const FRUIT_EMOJIS = {
@@ -29,6 +48,8 @@ function App() {
   // State management
   const [inventory, setInventory] = useState({});
   const [model, setModel] = useState(null);
+  const [modelConfig, setModelConfig] = useState(null);
+  const [currentModelKey, setCurrentModelKey] = useState('better_model');
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [detectionStatus, setDetectionStatus] = useState({
     message: 'Initializing Smart Fruit Bowl...',
@@ -39,30 +60,33 @@ function App() {
   const [detectionHistory, setDetectionHistory] = useState([]);
 
   // Initialize inventory
-  const initializeInventory = useCallback(() => {
+  const initializeInventory = useCallback((fruitClasses) => {
     const initialInventory = {};
-    FRUIT_CLASSES.forEach(fruit => {
-      initialInventory[fruit] = {
+    fruitClasses.forEach(fruit => {
+      const fruitKey = fruit.toLowerCase();
+      initialInventory[fruitKey] = {
         count: 0,
-        emoji: FRUIT_EMOJIS[fruit],
+        emoji: FRUIT_EMOJIS[fruitKey] || '🍎',
         threshold: 2 // Default threshold
       };
     });
     
     // Set some initial inventory for demo
-    initialInventory.apple.count = 5;
-    initialInventory.banana.count = 8;
-    initialInventory.orange.count = 3;
-    initialInventory.mango.count = 2;
-    initialInventory.pear.count = 2;
-    initialInventory.tomato.count = 4;
+    if (initialInventory.apple) initialInventory.apple.count = 5;
+    if (initialInventory.banana) initialInventory.banana.count = 8;
+    if (initialInventory.orange) initialInventory.orange.count = 3;
+    if (initialInventory.mango) initialInventory.mango.count = 2;
+    if (initialInventory.pear) initialInventory.pear.count = 2;
+    if (initialInventory.tomato) initialInventory.tomato.count = 4;
     
     return initialInventory;
   }, []);
 
-  // Load AI model automatically
-  const loadModel = useCallback(async () => {
-    if (isModelLoading || model) return model;
+  // Load AI model
+  const loadModel = useCallback(async (modelKey = null) => {
+    const modelToLoad = modelKey || currentModelKey;
+    
+    if (isModelLoading || !modelConfig) return null;
     
     setIsModelLoading(true);
     setDetectionStatus({
@@ -71,15 +95,24 @@ function App() {
     });
     
     try {
-      console.log('Loading your trained fruit classification model...');
+      const modelInfo = modelConfig.models[modelToLoad];
+      if (!modelInfo) {
+        throw new Error(`Model ${modelToLoad} not found in configuration`);
+      }
+
+      console.log(`Loading model: ${modelInfo.name}`);
+      console.log(`Model URL: ${modelInfo.modelUrl}`);
       
       // Load your converted model
-      const loadedModel = await tf.loadGraphModel('/web_model/model.json');
+      const loadedModel = await tf.loadGraphModel(modelInfo.modelUrl);
       
       console.log('✅ Model loaded successfully!');
+      console.log('Model input shape:', modelInfo.inputShape);
+      
       setModel(loadedModel);
+      setCurrentModelKey(modelToLoad);
       setDetectionStatus({
-        message: '🤖 AI model ready - 99.6% accuracy',
+        message: `🤖 ${modelInfo.name} ready`,
         type: 'active'
       });
       
@@ -98,16 +131,18 @@ function App() {
     } finally {
       setIsModelLoading(false);
     }
-  }, [isModelLoading, model]);
+  }, [isModelLoading, modelConfig, currentModelKey]);
 
   // Create simulation model for demo if real model fails to load
   const createSimulationModel = useCallback(() => {
     console.log('Creating simulation model for demo purposes...');
+    const fruitClasses = modelConfig?.classes || [];
+    
     return {
       predict: (input) => {
         // Return random but realistic predictions for demo
-        const predictions = new Float32Array(FRUIT_CLASSES.length);
-        const randomIndex = Math.floor(Math.random() * FRUIT_CLASSES.length);
+        const predictions = new Float32Array(fruitClasses.length);
+        const randomIndex = Math.floor(Math.random() * fruitClasses.length);
         
         // Create realistic confidence distribution
         for (let i = 0; i < predictions.length; i++) {
@@ -130,33 +165,42 @@ function App() {
       },
       isSimulation: true
     };
-  }, []);
+  }, [modelConfig]);
 
   // Preprocess image for AI model
   const preprocessImage = useCallback((canvas) => {
+    if (!modelConfig || !modelConfig.models[currentModelKey]) {
+      return null;
+    }
+
+    const modelInfo = modelConfig.models[currentModelKey];
+    const imageSize = modelInfo.imageSize || 224;
+
     return tf.tidy(() => {
       // Convert canvas to tensor
       let tensor = tf.browser.fromPixels(canvas);
       
-      // Resize to model input size (224x224 for most fruit classification models)
-      tensor = tf.image.resizeBilinear(tensor, [224, 224]);
+      // Resize to model input size
+      tensor = tf.image.resizeBilinear(tensor, [imageSize, imageSize]);
       
       // Normalize pixel values to [0, 1] range
       tensor = tensor.div(255.0);
       
-      // Add batch dimension [1, 224, 224, 3]
+      // Add batch dimension [1, imageSize, imageSize, 3]
       tensor = tensor.expandDims(0);
       
       return tensor;
     });
-  }, []);
+  }, [modelConfig, currentModelKey]);
 
   // Process model prediction and return structured result
   const processPrediction = useCallback((prediction) => {
+    const fruitClasses = modelConfig?.classes?.map(c => c.toLowerCase()) || [];
+    
     // Find the class with highest confidence
     const maxIndex = prediction.indexOf(Math.max(...prediction));
     const confidence = prediction[maxIndex];
-    const fruit = FRUIT_CLASSES[maxIndex];
+    const fruit = fruitClasses[maxIndex];
     
     // Store prediction in history for stability
     setDetectionHistory(prev => {
@@ -174,11 +218,11 @@ function App() {
       fruit: fruit,
       confidence: confidence,
       allProbabilities: Array.from(prediction).map((prob, index) => ({
-        class: FRUIT_CLASSES[index],
+        class: fruitClasses[index],
         probability: prob
       }))
     };
-  }, []);
+  }, [modelConfig]);
 
   // Determine if fruit is being added or removed
   const determineInventoryChange = useCallback((detectedFruit) => {
@@ -199,7 +243,7 @@ function App() {
 
   // Core AI analysis function
   const analyzeVideoFrame = useCallback(async (videoElement) => {
-    if (!cameraActive || !videoElement.videoWidth || !model) return;
+    if (!cameraActive || !videoElement.videoWidth || !model || !modelConfig) return;
     
     try {
       // Create canvas to capture current video frame
@@ -213,6 +257,7 @@ function App() {
       
       // Preprocess image for model
       const imageTensor = preprocessImage(canvas);
+      if (!imageTensor) return;
       
       // Make prediction using your trained model
       const prediction = await model.predict(imageTensor).data();
@@ -248,20 +293,20 @@ function App() {
         type: 'error'
       });
     }
-  }, [cameraActive, model, preprocessImage, processPrediction, determineInventoryChange]);
+  }, [cameraActive, model, modelConfig, preprocessImage, processPrediction, determineInventoryChange]);
 
   // Update inventory based on AI detection
   const updateInventoryFromDetection = useCallback((fruit, action) => {
     setInventory(prev => {
       const updated = { ...prev };
       
-      if (action === 'added') {
+      if (action === 'added' && updated[fruit]) {
         updated[fruit].count++;
-      } else if (action === 'removed' && updated[fruit].count > 0) {
+      } else if (action === 'removed' && updated[fruit] && updated[fruit].count > 0) {
         updated[fruit].count--;
       }
       
-      console.log(`📊 Inventory updated: ${fruit} ${action} (new count: ${updated[fruit].count})`);
+      console.log(`📊 Inventory updated: ${fruit} ${action} (new count: ${updated[fruit]?.count || 0})`);
       return updated;
     });
   }, []);
@@ -277,23 +322,44 @@ function App() {
     }));
   }, []);
 
+  // Switch between models
+  const switchModel = useCallback(async (modelKey) => {
+    if (modelKey === currentModelKey) return;
+    
+    console.log(`Switching to model: ${modelKey}`);
+    await loadModel(modelKey);
+  }, [currentModelKey, loadModel]);
+
   // Initialize application
   useEffect(() => {
     console.log('🍎 Initializing Smart Fruit Bowl React App...');
     
     const init = async () => {
-      // Initialize inventory
-      const initialInventory = initializeInventory();
+      // Load model configuration
+      const config = await loadModelConfig();
+      setModelConfig(config);
+      
+      // Initialize inventory with fruit classes from config
+      const fruitClasses = config.classes || [];
+      const initialInventory = initializeInventory(fruitClasses);
       setInventory(initialInventory);
       
       // Load AI model
-      await loadModel();
+      const defaultModel = config.defaultModel || 'better_model';
+      setCurrentModelKey(defaultModel);
       
       console.log('✅ Smart Fruit Bowl React App initialized successfully!');
     };
     
     init();
-  }, [initializeInventory, loadModel]);
+  }, [initializeInventory]);
+
+  // Load model when config is ready
+  useEffect(() => {
+    if (modelConfig && !model && !isModelLoading) {
+      loadModel();
+    }
+  }, [modelConfig, model, isModelLoading, loadModel]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -306,12 +372,33 @@ function App() {
     };
   }, []);
 
+  // Get fruit classes for components
+  const FRUIT_CLASSES = modelConfig?.classes?.map(c => c.toLowerCase()) || [];
+
   return (
     <div className="App">
       <div className="container">
         <div className="header">
           <h1>🍎 Smart Fruit Bowl</h1>
           <p>AI-Powered Inventory Management System</p>
+          
+          {/* Model Selector */}
+          {modelConfig && Object.keys(modelConfig.models).length > 1 && (
+            <div className="model-selector">
+              <label>AI Model: </label>
+              <select 
+                value={currentModelKey} 
+                onChange={(e) => switchModel(e.target.value)}
+                disabled={isModelLoading}
+              >
+                {Object.entries(modelConfig.models).map(([key, info]) => (
+                  <option key={key} value={key}>
+                    {info.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="main-grid">
