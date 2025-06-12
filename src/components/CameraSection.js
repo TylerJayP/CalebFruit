@@ -9,27 +9,30 @@ function CameraSection({
   setAutoDetectionActive,
   detectionStatus,
   setDetectionStatus,
-  analyzeVideoFrame,
   model,
   autoDetectionInterval,
-  modelConfig
+  modelConfig,
+  // UPDATED: These props now come from the cleaned App.js
+  determineInventoryChange,
+  updateInventoryFromDetection,
+  preprocessImage,
+  processPrediction
 }) {
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const detectionIntervalRef = useRef(null);
   
   // Real-time prediction state
   const [currentPrediction, setCurrentPrediction] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // Fruit emoji mapping (matching your HTML version)
+  // Fruit emoji mapping
   const fruitEmojis = {
     apple: '🍎', banana: '🍌', carambola: '⭐', guava: '🟢', kiwi: '🥝',
     mango: '🥭', muskmelon: '🍈', orange: '🍊', peach: '🍑', pear: '🍐',
-    persimmon: '🟠', pitaya: '🐉', plum: '🟣', pomegranate: '🔴', tomatoes: '🍅'
+    persimmon: '🟠', pitaya: '🐉', plum: '🟣', pomegranate: '🔴', tomato: '🍅'
   };
 
-  // Real-time detection function (like your HTML version)
+  // CLEANED: Detection function with no overlay, no debouncing
   const detectFruitsRealTime = useCallback(async () => {
     if (!cameraActive || !videoRef.current || !model || !modelConfig) return;
     
@@ -47,7 +50,7 @@ function CameraSection({
         // Draw current video frame
         ctx.drawImage(video, 0, 0);
         
-        // Preprocess image for model
+        // Use preprocessImage function from App.js
         const imageTensor = preprocessImage(canvas);
         if (!imageTensor) return;
         
@@ -55,7 +58,7 @@ function CameraSection({
         const prediction = await model.predict(imageTensor).data();
         imageTensor.dispose();
         
-        // Process prediction results
+        // Use processPrediction function from App.js
         const result = processPrediction(prediction);
         
         // Update current prediction for display
@@ -67,127 +70,35 @@ function CameraSection({
           class: result.fruit
         });
         
-        // Show detection overlay (like your HTML version)
-        showDetectionOverlay(result);
-        
         // Update detection status
         const emoji = fruitEmojis[result.fruit.toLowerCase()] || '🍎';
         const modelType = model.isSimulation ? '🎭' : '🤖';
-        setDetectionStatus({
-          message: `${modelType} ${emoji} Detected: ${result.fruit} (${(result.confidence * 100).toFixed(1)}%)`,
-          type: 'active'
-        });
         
-        // Call original analyze function for inventory updates if confidence is high
         if (result.confidence > 0.75) {
-          await analyzeVideoFrame(video);
+          // High confidence - update inventory using functions from App.js
+          const changeType = determineInventoryChange(result.fruit);
+          updateInventoryFromDetection(result.fruit, changeType);
+          
+          const action = changeType === 'added' ? 'added to' : 'removed from';
+          const modelTypeStatus = model.isSimulation ? '🎭 DEMO' : '🤖 AI';
+          setDetectionStatus({
+            message: `${modelTypeStatus} ✅ ${result.fruit.charAt(0).toUpperCase() + result.fruit.slice(1)} ${action} bowl (${(result.confidence * 100).toFixed(1)}%)`,
+            type: 'active'
+          });
+        } else {
+          // Low confidence - just show detection
+          setDetectionStatus({
+            message: `${modelType} ${emoji} Detected: ${result.fruit} (${(result.confidence * 100).toFixed(1)}%)`,
+            type: 'active'
+          });
         }
       }
     } catch (error) {
       console.error('❌ Real-time detection error:', error);
-      clearDetectionOverlay();
     } finally {
       setIsAnalyzing(false);
     }
-  }, [cameraActive, model, modelConfig, analyzeVideoFrame]);
-
-  // Show detection overlay (matching your HTML drawDetectionBox function)
-  const showDetectionOverlay = useCallback((prediction) => {
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    
-    if (!canvas || !video) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size to match video
-    canvas.width = video.clientWidth;
-    canvas.height = video.clientHeight;
-    
-    // Clear previous drawings
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Create gradient for the bounding box (like your HTML version)
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#4facfe');
-    gradient.addColorStop(1, '#00f2fe');
-    
-    // Set drawing styles
-    ctx.strokeStyle = gradient;
-    ctx.lineWidth = 3;
-    ctx.font = 'bold 18px Inter, sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 4;
-    
-    // Draw bounding box (centered like your HTML version)
-    const boxWidth = canvas.width * 0.6;
-    const boxHeight = canvas.height * 0.6;
-    const x = (canvas.width - boxWidth) / 2;
-    const y = (canvas.height - boxHeight) / 2;
-    
-    ctx.strokeRect(x, y, boxWidth, boxHeight);
-    
-    // Draw label with emoji and confidence
-    const emoji = fruitEmojis[prediction.fruit.toLowerCase()] || '🍎';
-    const label = `${emoji} ${prediction.fruit} (${Math.round(prediction.confidence * 100)}%)`;
-    ctx.fillText(label, x, y - 15);
-    
-    // Draw confidence bar
-    const barWidth = boxWidth;
-    const barHeight = 6;
-    const barX = x;
-    const barY = y + boxHeight + 10;
-    
-    // Background bar
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-    
-    // Confidence bar
-    ctx.fillStyle = prediction.confidence > 0.8 ? '#4facfe' : prediction.confidence > 0.6 ? '#ffd93d' : '#ff6b6b';
-    ctx.fillRect(barX, barY, barWidth * prediction.confidence, barHeight);
-    
-  }, [fruitEmojis]);
-
-  // Clear detection overlay
-  const clearDetectionOverlay = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    setCurrentPrediction(null);
-  }, []);
-
-  // Preprocess image for AI model
-  const preprocessImage = useCallback((canvas) => {
-    if (!modelConfig) return null;
-
-    const imageSize = 150; // Based on your model config
-
-    return tf.tidy(() => {
-      let tensor = tf.browser.fromPixels(canvas);
-      tensor = tf.image.resizeBilinear(tensor, [imageSize, imageSize]);
-      tensor = tensor.div(255.0);
-      tensor = tensor.expandDims(0);
-      return tensor;
-    });
-  }, [modelConfig]);
-
-  // Process prediction results
-  const processPrediction = useCallback((prediction) => {
-    const fruitClasses = modelConfig?.classes?.map(c => c.toLowerCase()) || [];
-    
-    const maxIndex = prediction.indexOf(Math.max(...prediction));
-    const confidence = prediction[maxIndex];
-    const fruit = fruitClasses[maxIndex];
-    
-    return {
-      fruit: fruit,
-      confidence: confidence,
-      class: fruit
-    };
-  }, [modelConfig]);
+  }, [cameraActive, model, modelConfig, determineInventoryChange, updateInventoryFromDetection, setDetectionStatus, preprocessImage, processPrediction]);
 
   // Start camera function
   const startCamera = useCallback(async () => {
@@ -196,7 +107,7 @@ function CameraSection({
         video: { 
           width: { ideal: 640 },
           height: { ideal: 480 },
-          facingMode: 'environment' // Use back camera like your HTML version
+          facingMode: 'environment'
         } 
       });
       
@@ -231,7 +142,6 @@ function CameraSection({
     
     setCameraActive(false);
     setAutoDetectionActive(false);
-    clearDetectionOverlay();
     
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current);
@@ -242,9 +152,9 @@ function CameraSection({
       message: 'Camera stopped',
       type: ''
     });
-  }, [setCameraActive, setAutoDetectionActive, setDetectionStatus, clearDetectionOverlay]);
+  }, [setCameraActive, setAutoDetectionActive, setDetectionStatus]);
 
-  // Toggle automatic detection (like your HTML version)
+  // Toggle automatic detection
   const toggleAutoDetection = useCallback(() => {
     if (autoDetectionActive) {
       // Stop auto detection
@@ -253,7 +163,6 @@ function CameraSection({
         detectionIntervalRef.current = null;
       }
       setAutoDetectionActive(false);
-      clearDetectionOverlay();
       setDetectionStatus({
         message: '🔄 Auto detection stopped',
         type: 'active'
@@ -276,10 +185,10 @@ function CameraSection({
         type: 'active'
       });
       
-      // Start continuous detection (like your HTML version)
+      // Start continuous detection
       detectionIntervalRef.current = setInterval(() => {
         detectFruitsRealTime();
-      }, 1000); // 1 second intervals like your HTML version
+      }, 1000);
     }
   }, [
     autoDetectionActive,
@@ -287,8 +196,7 @@ function CameraSection({
     model,
     setAutoDetectionActive,
     setDetectionStatus,
-    detectFruitsRealTime,
-    clearDetectionOverlay
+    detectFruitsRealTime
   ]);
 
   // Manual fruit detection
@@ -329,6 +237,7 @@ function CameraSection({
     <div className="camera-section">
       <h2 className="section-title">📹 Live AI Camera Feed</h2>
       
+      {/* CLEANED: Removed canvas overlay completely */}
       <div className="camera-container" style={{ position: 'relative' }}>
         <video 
           ref={videoRef}
@@ -337,21 +246,6 @@ function CameraSection({
           playsInline
           className="video-element"
           style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: '15px' }}
-        />
-        
-        {/* Canvas overlay for detection graphics (like your HTML version) */}
-        <canvas 
-          ref={canvasRef}
-          className="detection-overlay"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            borderRadius: '15px'
-          }}
         />
              
         {!cameraActive && (
