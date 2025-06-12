@@ -165,8 +165,8 @@ function App() {
       
       setDetectionStatus({
         message: loadedModel.isSimulation ? 
-          '🎭 Demo mode active (simulation)' : 
-          '🤖 AI model ready for detection!',
+          'Demo mode active (simulation)' : 
+          'Running Best Model',
         type: 'active'
       });
       
@@ -286,6 +286,17 @@ function App() {
     await loadModel(modelKey);
   }, [currentModelKey, loadModel]);
 
+  const setAllFruitsToFive = useCallback(() => {
+  setInventory(prev => {
+    const updated = { ...prev };
+    Object.keys(updated).forEach(fruit => {
+      updated[fruit].count = 5;
+    });
+    console.log('🔧 DEV: All fruits set to 5');
+    return updated;
+  });
+  }, []);
+  
   // Initialize application
   useEffect(() => {
     console.log('🍎 Initializing Smart Fruit Bowl React App...');
@@ -335,25 +346,11 @@ function App() {
     <div className="App">
       <div className="container">
         <div className="header">
-          <h1>🍎 Smart Fruit Bowl</h1>
+          <h1>Smart Fruit Bowl</h1>
           <p>AI-Powered Inventory Management System</p>
           
           {/* Status Indicators Row */}
-          <div className="status-row">
-            {/* Model Status Indicator */}
-            <div className="model-status-indicator" style={{
-              marginTop: '10px',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              display: 'inline-block',
-              backgroundColor: model?.isSimulation ? '#FEF3C7' : '#D1FAE5',
-              color: model?.isSimulation ? '#92400E' : '#065F46',
-              fontWeight: 'bold',
-              fontSize: '0.9rem'
-            }}>
-              {model?.isSimulation ? '🎭 Demo Mode (Simulated AI)' : '🤖 Real AI Model Active'}
-            </div>
-            
+          <div className="status-row">            
             {/* ADD THIS: Developer Mode Toggle */}
             <div className="developer-toggle">
               <button 
@@ -385,60 +382,75 @@ function App() {
           )}
         </div>
 
-        {/* ADD THIS: Developer Panel */}
-        {developerMode && (
-          <div className="developer-panel">
-            <div className="dev-panel-header">
-              <h3>🔧 Developer Controls</h3>
-              <p>Manually adjust fruit inventory for testing recipes and features</p>
-            </div>
-            
-            <div className="dev-controls">
-              <div className="dev-quick-actions">
-                <button className="dev-btn demo-btn" onClick={setDemoInventory}>
-                  🎯 Set Demo Inventory
+        {/* Developer Panel - UPDATED WITH NEW BUTTON */}
+{developerMode && (
+  <div className="developer-panel">
+    <div className="dev-panel-header">
+      <h3>🔧 Developer Controls</h3>
+      <p>Manually adjust fruit inventory for testing recipes and features</p>
+    </div>
+    
+    <div className="dev-controls">
+      <div className="dev-quick-actions">
+        <button className="dev-btn demo-btn" onClick={setDemoInventory}>
+          🎯 Set Demo Inventory
+        </button>
+        <button className="dev-btn set-five-btn" onClick={setAllFruitsToFive}>
+          🍎 Set All Fruits to 5
+        </button>
+        <button className="dev-btn reset-btn" onClick={resetInventory}>
+          🗑️ Reset All to 0
+        </button>
+      </div>
+      
+      <div className="dev-fruit-controls">
+        {FRUIT_CLASSES.map(fruit => {
+          const data = inventory[fruit];
+          if (!data) return null;
+          
+          return (
+            <div key={fruit} className="dev-fruit-item">
+              <div className="dev-fruit-info">
+                <span className="dev-fruit-emoji">{data.emoji}</span>
+                <span className="dev-fruit-name">
+                  {fruit.charAt(0).toUpperCase() + fruit.slice(1)}
+                </span>
+                <span className="dev-fruit-count">{data.count}</span>
+              </div>
+              <div className="dev-fruit-buttons">
+                <button 
+                  className="dev-adjust-btn minus"
+                  onClick={() => adjustFruitCount(fruit, -1)}
+                  disabled={data.count <= 0}
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    visibility: 'visible'
+                  }}
+                >
+                  -
                 </button>
-                <button className="dev-btn reset-btn" onClick={resetInventory}>
-                  🗑️ Reset All to 0
+                <button 
+                  className="dev-adjust-btn plus"
+                  onClick={() => adjustFruitCount(fruit, 1)}
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    visibility: 'visible'
+                  }}
+                >
+                  +
                 </button>
               </div>
-              
-              <div className="dev-fruit-controls">
-                {FRUIT_CLASSES.map(fruit => {
-                  const data = inventory[fruit];
-                  if (!data) return null;
-                  
-                  return (
-                    <div key={fruit} className="dev-fruit-item">
-                      <div className="dev-fruit-info">
-                        <span className="dev-fruit-emoji">{data.emoji}</span>
-                        <span className="dev-fruit-name">
-                          {fruit.charAt(0).toUpperCase() + fruit.slice(1)}
-                        </span>
-                        <span className="dev-fruit-count">{data.count}</span>
-                      </div>
-                      <div className="dev-fruit-buttons">
-                        <button 
-                          className="dev-adjust-btn minus"
-                          onClick={() => adjustFruitCount(fruit, -1)}
-                          disabled={data.count <= 0}
-                        >
-                          -
-                        </button>
-                        <button 
-                          className="dev-adjust-btn plus"
-                          onClick={() => adjustFruitCount(fruit, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
-          </div>
-        )}
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
 
         <div className="main-grid">
           <CameraSection

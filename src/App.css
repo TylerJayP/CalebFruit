@@ -1038,6 +1038,7 @@ body::before {
   font-family: 'Courier New', monospace;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  min-width: 160px; /* Ensure buttons are wide enough */
 }
 
 .demo-btn {
@@ -1052,6 +1053,36 @@ body::before {
   box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
 }
 
+/* NEW: Set All Fruits to 5 Button */
+.set-five-btn {
+  background: linear-gradient(135deg, #38a169, #2f855a);
+  color: white;
+  border: 1px solid #2f855a;
+  position: relative;
+  overflow: hidden;
+}
+
+.set-five-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.set-five-btn:hover {
+  background: linear-gradient(135deg, #2f855a, #276749);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 161, 105, 0.4);
+}
+
+.set-five-btn:hover::before {
+  left: 100%;
+}
+
 .reset-btn {
   background: linear-gradient(135deg, #e53e3e, #c53030);
   color: white;
@@ -1064,10 +1095,45 @@ body::before {
   box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
 }
 
-/* Fruit Controls Grid */
+/* Responsive Design for 3 buttons */
+@media (max-width: 768px) {
+  .dev-quick-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dev-btn {
+    width: 100%;
+    padding: 14px 20px;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .dev-btn {
+    font-size: 0.8rem;
+    padding: 12px 16px;
+  }
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  border: 1px solid #c53030;
+}
+
+.reset-btn:hover {
+  background: linear-gradient(135deg, #c53030, #9c1e1e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+}
+
+/* DEVELOPER MODE STYLES - FIXED FOR BUTTON VISIBILITY */
+
+/* Fruit Controls Grid - INCREASED WIDTH */
 .dev-fruit-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Increased from 200px to 280px */
   gap: 12px;
   max-height: 300px;
   overflow-y: auto;
@@ -1077,25 +1143,7 @@ body::before {
   border: 1px solid #4a5568;
 }
 
-.dev-fruit-controls::-webkit-scrollbar {
-  width: 8px;
-}
-
-.dev-fruit-controls::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-.dev-fruit-controls::-webkit-scrollbar-thumb {
-  background: #4a5568;
-  border-radius: 4px;
-}
-
-.dev-fruit-controls::-webkit-scrollbar-thumb:hover {
-  background: #667eea;
-}
-
-/* Individual Fruit Item */
+/* Individual Fruit Item - IMPROVED LAYOUT */
 .dev-fruit-item {
   display: flex;
   align-items: center;
@@ -1106,6 +1154,8 @@ body::before {
   padding: 12px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  min-width: 280px; /* Ensure minimum width */
+  overflow: visible; /* Prevent content cutoff */
 }
 
 .dev-fruit-item:hover {
@@ -1120,11 +1170,14 @@ body::before {
   align-items: center;
   gap: 10px;
   flex: 1;
+  min-width: 0; /* Allow shrinking */
+  margin-right: 10px; /* Add space before buttons */
 }
 
 .dev-fruit-emoji {
   font-size: 1.5rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  flex-shrink: 0; /* Don't shrink emoji */
 }
 
 .dev-fruit-name {
@@ -1132,6 +1185,7 @@ body::before {
   font-weight: 600;
   font-size: 0.9rem;
   min-width: 80px;
+  flex-shrink: 0; /* Don't shrink name */
 }
 
 .dev-fruit-count {
@@ -1144,112 +1198,130 @@ body::before {
   border: 1px solid rgba(104, 211, 145, 0.3);
   min-width: 30px;
   text-align: center;
+  flex-shrink: 0; /* Don't shrink count */
 }
 
-/* Adjustment Buttons */
+/* Adjustment Buttons - GUARANTEED VISIBILITY */
 .dev-fruit-buttons {
   display: flex;
-  gap: 6px;
+  gap: 8px; /* Increased gap */
+  flex-shrink: 0; /* Never shrink buttons */
+  align-items: center;
 }
 
 .dev-adjust-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px !important; /* Increased from 32px */
+  height: 36px !important; /* Increased from 32px */
   border: none;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Slightly larger font */
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   font-family: 'Courier New', monospace;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex-shrink: 0 !important; /* Never shrink */
+  position: relative;
+  z-index: 10; /* Ensure they're on top */
 }
 
 .dev-adjust-btn.minus {
-  background: linear-gradient(135deg, #f56565, #e53e3e);
-  color: white;
-  border: 1px solid #e53e3e;
+  background: linear-gradient(135deg, #f56565, #e53e3e) !important;
+  color: white !important;
+  border: 2px solid #e53e3e !important;
 }
 
 .dev-adjust-btn.minus:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e53e3e, #c53030);
+  background: linear-gradient(135deg, #e53e3e, #c53030) !important;
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
 }
 
 .dev-adjust-btn.minus:disabled {
-  background: #4a5568;
-  color: #a0aec0;
+  background: #4a5568 !important;
+  color: #a0aec0 !important;
   cursor: not-allowed;
-  border-color: #4a5568;
+  border-color: #4a5568 !important;
 }
 
 .dev-adjust-btn.plus {
-  background: linear-gradient(135deg, #48bb78, #38a169);
-  color: white;
-  border: 1px solid #38a169;
+  background: linear-gradient(135deg, #48bb78, #38a169) !important;
+  color: white !important;
+  border: 2px solid #38a169 !important;
 }
 
 .dev-adjust-btn.plus:hover {
-  background: linear-gradient(135deg, #38a169, #2f855a);
+  background: linear-gradient(135deg, #38a169, #2f855a) !important;
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
 }
 
-/* Responsive Design for Developer Mode */
-@media (max-width: 768px) {
-  .status-row {
-    flex-direction: column;
-    gap: 15px;
+/* Alternative Layout for Smaller Screens */
+@media (max-width: 1200px) {
+  .dev-fruit-controls {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Even wider on smaller screens */
   }
   
-  .developer-panel {
-    padding: 20px;
-    margin: 15px 0;
+  .dev-fruit-item {
+    min-width: 320px;
+    padding: 14px;
   }
   
-  .dev-quick-actions {
-    flex-direction: column;
+  .dev-fruit-buttons {
     gap: 10px;
   }
-  
-  .dev-btn {
-    width: 100%;
-    padding: 14px 20px;
-  }
-  
+}
+
+@media (max-width: 768px) {
   .dev-fruit-controls {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile */
     max-height: 250px;
     padding: 12px;
   }
   
   .dev-fruit-item {
-    padding: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .dev-toggle-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-  
-  .dev-panel-header h3 {
-    font-size: 1.1rem;
+    min-width: auto;
+    width: 100%;
+    padding: 12px;
   }
   
   .dev-fruit-name {
-    font-size: 0.8rem;
     min-width: 60px;
   }
   
   .dev-adjust-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 1rem;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dev-fruit-item {
+    padding: 10px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dev-fruit-info {
+    width: 100%;
+    justify-content: space-between;
+    margin-right: 0;
+  }
+  
+  .dev-fruit-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .dev-adjust-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.3rem;
   }
 }
 
