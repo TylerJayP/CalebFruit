@@ -1,29 +1,38 @@
 {
   "models": {
-    "better_model": {
-      "modelUrl": "./better_model/model.json",
-      "inputShape": [224, 224, 3],
-      "imageSize": 224,
-      "name": "Better Fruit Classification Model",
-      "description": "Improved model with higher accuracy"
-    },
-    "best_model": {
+    "converted_model": {
       "modelUrl": "./tfjs_best_model/model.json",
-      "inputShape": [150, 150, 3],
+      "inputShape": [
+        150,
+        150,
+        3
+      ],
       "imageSize": 150,
-      "name": "Kaggle Best Model",
-      "description": "Trained model with 99.6% accuracy"
+      "name": "Converted Model",
+      "description": "Converted from Converted Model"
     }
   },
-  "defaultModel": "better_model",
+  "defaultModel": "converted_model",
   "classes": [
-    "Apple", "Banana", "Carambola", "Guava", "Kiwi",
-    "Mango", "Orange", "Peach", "Pear", "Persimmon", 
-    "Pitaya", "Plum", "Pomegranate", "Tomatoes", "muskmelon"
+    "apple",
+    "banana",
+    "carambola",
+    "guava",
+    "kiwi",
+    "mango",
+    "muskmelon",
+    "orange",
+    "peach",
+    "pear",
+    "persimmon",
+    "pitaya",
+    "plum",
+    "pomegranate",
+    "tomato"
   ],
   "preprocessing": {
     "normalization": "0-1",
     "resizeMethod": "bilinear",
-    "description": "Resize to 224x224 and normalize to [0,1] range"
+    "description": "Resize to 150x150 and normalize to [0,1] range"
   }
 }

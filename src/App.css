@@ -1,4 +1,4 @@
-/* Smart Fruit Bowl React App Styles */
+/* Smart Fruit Bowl React App Styles - Complete Version */
 
 * {
   margin: 0;
@@ -12,6 +12,31 @@ body {
   min-height: 100vh;
   color: #333;
   margin: 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated background elements */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+  animation: backgroundShift 20s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-20px, -20px) rotate(1deg); }
+  50% { transform: translate(20px, 20px) rotate(-1deg); }
+  75% { transform: translate(-10px, 10px) rotate(0.5deg); }
 }
 
 .App {
@@ -29,17 +54,61 @@ body {
   text-align: center;
   color: white;
   margin-bottom: 30px;
+  position: relative;
 }
 
 .header h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+  to { filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); }
 }
 
 .header p {
   font-size: 1.1rem;
   opacity: 0.9;
+}
+
+/* Model Status Indicator */
+.model-status-indicator {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Model Selector */
+.model-selector {
+  margin-top: 15px;
+  color: white;
+}
+
+.model-selector label {
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+.model-selector select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  backdrop-filter: blur(10px);
 }
 
 /* Grid Layouts */
@@ -54,18 +123,23 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
+  margin-bottom: 30px;
 }
 
 /* Section Styles */
 .camera-section, 
 .inventory-section, 
 .grocery-section, 
-.recipe-section {
+.recipe-section,
+.model-tester {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 25px;
   box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
 .section-title {
@@ -76,19 +150,34 @@ body {
   padding-bottom: 10px;
 }
 
-/* Camera Styles */
+/* Enhanced Camera Styles */
 .camera-container {
   position: relative;
   background: #000;
   border-radius: 15px;
   overflow: hidden;
   margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .video-element {
   width: 100%;
   height: 300px;
   object-fit: cover;
+  display: block;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.detection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 15px;
+  z-index: 2;
 }
 
 .camera-overlay {
@@ -101,63 +190,90 @@ body {
   background: rgba(0,0,0,0.7);
   padding: 20px;
   border-radius: 10px;
+  backdrop-filter: blur(10px);
 }
 
+/* Camera Controls - FIXED HOVER FLICKERING */
 .camera-controls {
   display: flex;
   gap: 15px;
   justify-content: center;
   margin-bottom: 15px;
   flex-wrap: wrap;
+  margin-top: 15px;
 }
 
-/* Button Styles */
+/* Button Styles - FIXED FLICKERING ISSUE */
 .btn {
+  flex: 1;
+  min-width: 120px;
   padding: 12px 24px;
   border: none;
   border-radius: 25px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  /* CRITICAL: Prevent flickering with these properties */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
+  pointer-events: none;
 }
 
 .btn-primary {
   background: linear-gradient(45deg, #667eea, #764ba2);
   color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-secondary {
   background: linear-gradient(45deg, #f093fb, #f5576c);
   color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
 }
 
 .btn-success {
   background: linear-gradient(45deg, #48bb78, #38a169);
   color: white;
+  box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
 }
 
-.btn-success:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+/* FIXED HOVER EFFECTS - No more flickering */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) translateZ(0);
 }
 
 .full-width {
@@ -171,6 +287,7 @@ body {
   padding: 15px;
   text-align: center;
   transition: all 0.3s ease;
+  margin-top: 15px;
 }
 
 .status-active {
@@ -194,6 +311,27 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 15px;
   margin-bottom: 20px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.inventory-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.inventory-grid::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 3px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb:hover {
+  background: #5a6fd8;
 }
 
 .fruit-card {
@@ -202,20 +340,47 @@ body {
   padding: 15px;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.fruit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .fruit-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) translateZ(0);
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
   border-color: #667eea;
+}
+
+.fruit-card:hover::before {
+  opacity: 1;
 }
 
 .fruit-emoji {
   font-size: 2rem;
   margin-bottom: 8px;
   display: block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  transition: all 0.3s ease;
+}
+
+.fruit-card:hover .fruit-emoji {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
 }
 
 .fruit-name {
@@ -243,6 +408,7 @@ body {
 
 .low-stock .fruit-count {
   color: #f56565;
+  animation: pulse 2s infinite;
 }
 
 .out-of-stock {
@@ -336,11 +502,13 @@ body {
   box-shadow: 0 5px 15px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
   position: relative;
+  border: 2px solid transparent;
 }
 
 .recipe-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  border-color: #667eea;
 }
 
 .recipe-title {
@@ -389,21 +557,101 @@ body {
   font-weight: 600;
 }
 
+/* Model Tester Styles */
+.model-tester {
+  margin-top: 30px;
+}
+
 /* Animations */
 .pulse {
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* Spinning animation for loading indicators */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Prediction overlay animations */
+.prediction-overlay {
+  animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { 
+    opacity: 0; 
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced fade-in animations */
+.camera-section, .inventory-section, .grocery-section, .recipe-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animations */
+.main-grid .camera-section { animation-delay: 0.1s; }
+.main-grid .inventory-section { animation-delay: 0.2s; }
+.bottom-grid .grocery-section { animation-delay: 0.3s; }
+.bottom-grid .recipe-section { animation-delay: 0.4s; }
+
+/* Focus Styles */
+*:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+  background: #667eea;
+  color: white;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a6fd8;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-grid, .bottom-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   
   .header h1 {
@@ -412,11 +660,17 @@ body {
   
   .inventory-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
   }
   
   .camera-controls {
     flex-direction: column;
-    align-items: center;
+    gap: 10px;
+  }
+  
+  .btn {
+    min-width: auto;
+    width: 100%;
   }
   
   .threshold-grid {
@@ -425,6 +679,10 @@ body {
   
   .container {
     padding: 15px;
+  }
+
+  .video-element {
+    height: 250px;
   }
 }
 
@@ -440,5 +698,17 @@ body {
   
   .section-title {
     font-size: 1.3rem;
+  }
+
+  .fruit-emoji {
+    font-size: 1.8rem;
+  }
+
+  .camera-section, 
+  .inventory-section, 
+  .grocery-section, 
+  .recipe-section,
+  .model-tester {
+    padding: 20px;
   }
 }
