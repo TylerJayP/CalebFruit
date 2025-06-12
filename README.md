@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Getting Started with Create React App
+=======
+# Smart Fruit Tracker
+>>>>>>> 074bb8a14b97b01ed15e9b3691fd2ec0c7cf703c
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -6,10 +10,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+<<<<<<< HEAD
 ### `npm start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+=======
+## Usage
+1. Copy HTML content from artifact to index.html
+2. Run: npm install
+3. Run: npm test
+4. Run: npm start
+5. Open: http://localhost:3000
+>>>>>>> 074bb8a14b97b01ed15e9b3691fd2ec0c7cf703c
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
