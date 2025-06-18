@@ -201,9 +201,9 @@ Edit `public/webapp_model_config.json` to configure AI models:
   },
   "defaultModel": "better_model",
   "classes": [
-    "apple", "banana", "carambola", "guava", "kiwi",
-    "mango", "muskmelon", "orange", "peach", "pear",
-    "persimmon", "pitaya", "plum", "pomegranate", "tomato"
+    "apple", "banana", "kiwi",
+    "mango", "cantaloupe", "orange", "peach", "pear",
+    "pitaya", "plum", "pomegranate", "tomato"
   ]
 }
 ```

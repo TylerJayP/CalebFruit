@@ -52,13 +52,13 @@ function GrocerySection({ inventory }) {
     <div className="grocery-section">
       <h2 className="section-title">🛒 Shopping List</h2>
       
-      <div className="grocery-list bg-theme-light">
+      <div className="grocery-list">
         {lowStockItems.length === 0 ? (
           <p className="empty-message">All fruit levels are adequate! 🎉</p>
         ) : (
           lowStockItems.map(([fruit, data]) => {
             const needed = Math.max(1, data.threshold - data.count + 2);
-            const hasStoreUrl = FRUIT_STORE_URLS[fruit] && FRUIT_STORE_URLS[fruit] !== "https://store.example.com/" + fruit;
+            const hasStoreUrl = FRUIT_STORE_URLS[fruit] && FRUIT_STORE_URLS[fruit] !== "https://walmart.com/" + fruit;
             return (
               <div key={fruit} className="grocery-item">
                 <span>

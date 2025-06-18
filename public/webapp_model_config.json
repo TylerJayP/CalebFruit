@@ -16,19 +16,11 @@
   "classes": [
     "apple",
     "banana",
-    "carambola",
-    "guava",
     "kiwi",
     "mango",
-    "muskmelon",
     "orange",
     "peach",
-    "pear",
-    "persimmon",
-    "pitaya",
-    "plum",
-    "pomegranate",
-    "tomato"
+    "pear"
   ],
   "preprocessing": {
     "normalization": "0-1",

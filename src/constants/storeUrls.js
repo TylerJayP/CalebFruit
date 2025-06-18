@@ -9,12 +9,9 @@ export const FRUIT_STORE_URLS = {
   "kiwi": "https://www.walmart.com/ip/Kiwi-Clamshell-1lb/13508117005?classType=REGULAR",
  
   // Exotic fruits
-  "carambola": "https://store.example.com/carambola",
-  "guava": "https://www.walmart.com/ip/Guava-1-lb-Clamshell/114803944?classType=REGULAR&athbdg=L1200&from=/search",
   "pitaya": "https://www.smithsfoodanddrug.com/p/white-dragon-fruit/0000000003040?fulfillment=PICKUP&searchType=default_search",
   "pomegranate": "https://www.walmart.com/ip/Great-Value-Pomegranate-Arils-12-oz-Frozen/5758971992?classType=REGULAR&from=/search",
-  "muskmelon": "https://store.example.com/muskmelon",
+  "cantaloupe": "https://www.walmart.com/ip/Cantaloupe-each/44390974?classType=REGULAR&athbdg=L1300",
   "plum": "https://www.walmart.com/ip/Fresh-Organic-Plums-2-lb-Bag/428387648?classType=REGULAR&from=/search",
-  "persimmon": "https://store.example.com/persimmon",
   "peach": "https://www.walmart.com/ip/Fresh-Yellow-Peach-Each/216218066?classType=REGULAR&athbdg=L1300&from=/search"
 }; 

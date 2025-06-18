@@ -4,11 +4,6 @@ import { FRUIT_STORE_URLS } from '../constants/storeUrls';
 // Smoothie recipes based on available fruits
 const smoothieRecipes = [
   {
-    name: "Tropical Paradise",
-    ingredients: ["mango", "carambola", "guava"],
-    instructions: "Blend 1 mango, 2 carambola, and 1 guava with coconut water until smooth. Perfect tropical treat!"
-  },
-  {
     name: "Classic Orange Delight",
     ingredients: ["orange", "banana", "peach"],
     instructions: "Blend 2 oranges, 1 banana, and 2 peaches. Add yogurt for creaminess!"
@@ -16,7 +11,7 @@ const smoothieRecipes = [
   {
     name: "Exotic Dragon Bowl",
     ingredients: ["pitaya", "kiwi", "mango"],
-    instructions: "Blend dragon fruit, 3 kiwis, and 1 mango. A colorful antioxidant powerhouse!"
+    instructions: "Blend pitaya, 3 kiwis, and 1 mango. A colorful antioxidant powerhouse!"
   },
   {
     name: "Sweet & Tangy Mix",
@@ -25,18 +20,13 @@ const smoothieRecipes = [
   },
   {
     name: "Melon Madness",
-    ingredients: ["muskmelon", "peach", "banana"],
+    ingredients: ["cantaloupe", "peach", "banana"],
     instructions: "Blend cantaloupe chunks, 2 peaches, and 1 banana. Summer in a glass!"
   },
   {
-    name: "Antioxidant Power",
-    ingredients: ["plum", "persimmon", "apple"],
-    instructions: "Blend 3 plums, 1 persimmon, and 2 apples. Rich in vitamins and antioxidants!"
-  },
-  {
     name: "Tomato Surprise",
-    ingredients: ["tomato", "apple", "carambola"],
-    instructions: "Blend 2 tomatoes, 1 apple, and 1 carambola. Unexpectedly refreshing savory-sweet blend!"
+    ingredients: ["tomato", "apple", "kiwi"],
+    instructions: "Blend 2 tomatoes, 1 apple, and 1 kiwi. Unexpectedly refreshing savory-sweet blend!"
   },
   {
     name: "Green Power",
