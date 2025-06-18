@@ -32,9 +32,8 @@ function CameraSection({
 
   // Fruit emoji mapping
   const fruitEmojis = {
-    apple: '🍎', banana: '🍌', carambola: '⭐', guava: '🟢', kiwi: '🥝',
-    mango: '🥭', muskmelon: '🍈', orange: '🍊', peach: '🍑', pear: '🍐',
-    persimmon: '🟠', pitaya: '🐉', plum: '🟣', pomegranate: '🔴', tomato: '🍅'
+    apple: '🍎', banana: '🍌', kiwi: '🥝',
+    mango: '🥭', orange: '🍊', peach: '🍑', pear: '🍐'
   };
 
   // Enhanced bowl detection function

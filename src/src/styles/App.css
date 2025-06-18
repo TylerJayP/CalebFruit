@@ -1,0 +1,95 @@
+/* Clickable elements */
+.clickable {
+  transition: all 0.2s ease-in-out;
+}
+
+.clickable:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.needed-count.clickable {
+  color: #e74c3c;
+}
+
+.recipe-badge.need-badge.clickable:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* Tab content styling */
+.tab-content {
+  max-height: 400px; /* Fixed height for the content area */
+  overflow-y: auto; /* Enable vertical scrolling when content exceeds max-height */
+  padding-right: 10px; /* Space for scrollbar */
+  margin-right: -10px; /* Compensate for padding to align with other elements */
+  background-color: #fff; /* Ensure background fills scroll area */
+  border-radius: 0 0 12px 12px; /* Match container border-radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+  /* Removed any conflicting position or flex properties */
+}
+
+.tab-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure both tabs themselves take up available width and allow for scrolling */
+.inventory-tab,
+.thresholds-tab {
+  padding: 10px 0;
+  box-sizing: border-box; /* Include padding in element's total width/height */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children vertically */
+  height: 100%; /* Take full height of parent */
+}
+
+.threshold-scroll-content {
+  flex-grow: 1; /* Allow it to grow and take available space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  min-height: 0; /* Crucial for scrolling inside flex items */
+  padding-right: 10px; /* Space for scrollbar */
+  margin-right: -10px; /* Compensate for padding */
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.threshold-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.threshold-intro {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Inventory stats should stay at bottom if content scrolls */
+.inventory-stats {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+} 

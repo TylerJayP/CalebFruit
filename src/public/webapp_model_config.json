@@ -1,0 +1,30 @@
+{
+  "models": {
+    "converted_model": {
+      "modelUrl": "./tfjs_best_model/model.json",
+      "inputShape": [
+        150,
+        150,
+        3
+      ],
+      "imageSize": 150,
+      "name": "Converted Model",
+      "description": "Converted from Converted Model"
+    }
+  },
+  "defaultModel": "converted_model",
+  "classes": [
+    "apple",
+    "banana",
+    "kiwi",
+    "mango",
+    "orange",
+    "peach",
+    "pear"
+  ],
+  "preprocessing": {
+    "normalization": "0-1",
+    "resizeMethod": "bilinear",
+    "description": "Resize to 150x150 and normalize to [0,1] range"
+  }
+}
