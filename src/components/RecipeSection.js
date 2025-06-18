@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { FRUIT_STORE_URLS } from '../constants/storeUrls';
 
 // Smoothie recipes based on available fruits
 const smoothieRecipes = [
@@ -206,6 +207,17 @@ function RecipeSection({ inventory }) {
     }
   };
 
+  // Handle clicking on missing ingredients to open store pages
+  const handleShopClick = (missingIngredients) => {
+    // Open each store URL in a new tab
+    missingIngredients.forEach(ingredient => {
+      const url = FRUIT_STORE_URLS[ingredient];
+      if (url && url !== "https://store.example.com/" + ingredient) {
+        window.open(url, '_blank');
+      }
+    });
+  };
+
   // If no fruits at all
   if (availableFruits.length === 0) {
     return (
@@ -347,7 +359,11 @@ function RecipeSection({ inventory }) {
                         {recipe.instructions}
                       </div>
                       
-                      <div className="recipe-badge need-badge">
+                      <div 
+                        className="recipe-badge need-badge clickable"
+                        onClick={() => handleShopClick(recipe.missingIngredients)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         🛒 Shop for {recipe.missingIngredients.length} more
                       </div>
                     </div>

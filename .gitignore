@@ -65,7 +65,6 @@ data/
 datasets/
 training_data/
 *.csv
-*.json
 *.parquet
 *.feather
 

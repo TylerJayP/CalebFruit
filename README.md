@@ -1,83 +1,221 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
-=======
-# Smart Fruit Tracker
->>>>>>> 074bb8a14b97b01ed15e9b3691fd2ec0c7cf703c
+# Smart Fruit Bowl
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**AI-Powered Inventory Management System**
 
-## Available Scripts
+A modern React application that uses artificial intelligence to detect, track, and manage fruit inventory through real-time camera feeds. Features intelligent recipe suggestions, automated shopping lists, and a comprehensive developer toolkit.
 
-In the project directory, you can run:
+## ✨ Features
 
-<<<<<<< HEAD
-### `npm start`
+### AI-Powered Detection
+- **Real-time fruit recognition** using TensorFlow.js machine learning models
+- **Automatic inventory updates** based on AI detections
+- **Configurable AI models** with simulation mode for testing
+- **High accuracy detection** with confidence scoring
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-=======
-## Usage
-1. Copy HTML content from artifact to index.html
-2. Run: npm install
-3. Run: npm test
-4. Run: npm start
-5. Open: http://localhost:3000
->>>>>>> 074bb8a14b97b01ed15e9b3691fd2ec0c7cf703c
+### Smart Inventory Management
+- **Visual fruit cards** with emoji representations
+- **Low stock alerts** and automatic threshold monitoring
+- **Real-time inventory statistics** (total items, low stock, out of stock)
+- **Customizable stock thresholds** for each fruit type
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Recipe Intelligence
+- **10+ built-in smoothie recipes** using available fruits
+- **Smart recipe filtering** based on current inventory
+- **"Ready to Make" vs "Need Ingredients"** categorization
+- **Recipe export functionality** for shopping lists
 
-### `npm test`
+### Automated Shopping Lists
+- **Smart shopping list generation** based on low stock items
+- **Recipe-based shopping lists** for missing ingredients
+- **Exportable text files** with timestamps
+- **Quantity suggestions** based on consumption patterns
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Developer Mode
+- **Manual inventory adjustment** with +/- buttons
+- **Quick inventory presets** (Demo Mode, Set All to 5, Reset All)
+- **Real-time debugging console** with detailed logging
+- **Developer-friendly controls** for testing and debugging
 
-### `npm run build`
+## Quick Start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Ensure you have the following installed on your machine:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Node.js** (version 14.0.0 or higher)
+- **npm** (version 6.0.0 or higher) or **yarn**
+- **Modern web browser** with camera access support
+- **Git** for version control
 
-### `npm run eject`
+### Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/smart-fruit-bowl.git
+   cd smart-fruit-bowl
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+   or with yarn:
+   ```bash
+   yarn install
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. **Set up AI model files** (optional)
+   ```bash
+   # Place your TensorFlow.js model files in the public folder:
+   # public/better_model/model.json
+   # public/better_model/model_weights.bin
+   # public/webapp_model_config.json
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-## Learn More
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Usage Guide
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Getting Started
 
-### Code Splitting
+1. **Enable Camera Access**: Click "Start Camera" to begin real-time fruit detection
+2. **Enable Developer Mode**: Toggle the "Developer Mode" button for manual controls
+3. **Add Fruits**: Use the camera detection or manual +/- buttons to add fruits
+4. **Explore Recipes**: Check the "Recipes" section for available smoothie suggestions
+5. **Generate Shopping Lists**: Use the "Shopping List" section for automated lists
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Camera Detection
 
-### Analyzing the Bundle Size
+- **Position fruits** clearly in front of the camera
+- **Ensure good lighting** for optimal AI detection
+- **Wait for high confidence** scores (>75%) for automatic inventory updates
+- **Check detection status** in the real-time status display
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Developer Mode Features
 
-### Making a Progressive Web App
+#### Quick Actions
+- **Set Demo Inventory**: Loads realistic test data
+- **Set All Fruits to 5**: Sets uniform quantities for testing
+- **Reset All to 0**: Clears all inventory
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Manual Controls
+- **Individual +/- buttons** for precise inventory adjustment
+- **Real-time count updates** with instant visual feedback
+- **Disabled state handling** (can't go below 0)
 
-### Advanced Configuration
+### Recipe System
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+#### Ready to Make Recipes
+- Recipes you can make with current inventory
+- Green highlighting for available recipes
+- One-click recipe viewing with instructions
 
-### Deployment
+#### Need Ingredients Recipes
+- Shows missing ingredients in red
+- Available ingredients in green
+- Export shopping list for missing items
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 📁 Project Structure
 
-### `npm run build` fails to minify
+```
+smart-fruit-bowl/
+├── public/
+│   ├── index.html
+│   ├── webapp_model_config.json      # AI model configuration
+│   └── better_model/                 # TensorFlow.js model files
+│       ├── model.json
+│       └── model_weights.bin
+├── src/
+│   ├── components/                   # React components
+│   │   ├── CameraSection.js         # AI detection & camera
+│   │   ├── InventorySection.js      # Inventory management
+│   │   ├── GrocerySection.js        # Shopping lists
+│   │   ├── RecipeSection.js         # Recipe suggestions
+│   │   └── StatusDisplay.js         # Status indicators
+│   ├── App.js                       # Main application component
+│   ├── App.css                      # Styling and animations
+│   ├── index.js                     # React DOM entry point
+│   └── index.css                    # Global styles
+├── package.json                     # Dependencies and scripts
+└── README.md                        # This file
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🛠️ Technologies Used
+
+### Frontend Framework
+- **React 18.x** - Modern React with hooks and functional components
+- **JavaScript ES6+** - Modern JavaScript features and syntax
+
+### AI & Machine Learning
+- **TensorFlow.js** - Client-side machine learning for fruit detection
+- **Custom AI Models** - Trained fruit classification models
+- **Real-time Processing** - Live camera feed analysis
+
+### Styling & UI
+- **CSS3** - Modern styling with gradients, animations, and layouts
+- **CSS Grid & Flexbox** - Responsive layout systems
+- **CSS Animations** - Smooth transitions and interactive effects
+
+### Browser APIs
+- **MediaDevices API** - Camera access and video streaming
+- **Canvas API** - Image processing and manipulation
+- **File API** - Shopping list export functionality
+
+## ⚙️ Available Scripts
+
+### Development
+```bash
+npm start          # Start development server on http://localhost:3000
+npm run build      # Create production build in build/ folder
+npm test           # Run test suite in interactive watch mode
+npm run eject      # Eject from Create React App (one-way operation)
+```
+
+### Debugging
+```bash
+npm run build      # Test production build locally
+npm run analyze    # Analyze bundle size and dependencies
+```
+
+## 🔧 Configuration
+
+### AI Model Configuration
+
+Edit `public/webapp_model_config.json` to configure AI models:
+
+```json
+{
+  "models": {
+    "better_model": {
+      "modelUrl": "./better_model/model.json",
+      "inputShape": [224, 224, 3],
+      "imageSize": 224,
+      "name": "Better Fruit Classification Model"
+    }
+  },
+  "defaultModel": "better_model",
+  "classes": [
+    "apple", "banana", "carambola", "guava", "kiwi",
+    "mango", "muskmelon", "orange", "peach", "pear",
+    "persimmon", "pitaya", "plum", "pomegranate", "tomato"
+  ]
+}
+```
+
+### Customizing Fruit Types
+
+To add new fruit types:
+
+1. Update the `classes` array in `webapp_model_config.json`
+2. Add emoji mappings in `App.js` FRUIT_EMOJIS object
+3. Train and deploy updated AI model (optional)
+
+### Threshold Settings
+
+Default stock thresholds can be modified in the `initializeInventory` function in `App.js`.

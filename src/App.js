@@ -45,13 +45,18 @@ const DETECTION_THRESHOLD = 0.75;
 const AUTO_DETECTION_INTERVAL = 4000; // 4 seconds
 
 function App() {
-  // State management - CLEANED (removed debounce refs)
+  // State management
   const [inventory, setInventory] = useState({});
   const [model, setModel] = useState(null);
   const [modelConfig, setModelConfig] = useState(null);
   const [currentModelKey, setCurrentModelKey] = useState('better_model');
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [developerMode, setDeveloperMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check localStorage for saved preference
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
   const [detectionStatus, setDetectionStatus] = useState({
     message: 'Initializing Smart Fruit Bowl...',
     type: 'loading'
@@ -59,6 +64,20 @@ function App() {
   const [cameraActive, setCameraActive] = useState(false);
   const [autoDetectionActive, setAutoDetectionActive] = useState(false);
   const [detectionHistory, setDetectionHistory] = useState([]);
+
+  // Toggle dark mode
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => {
+      const newMode = !prev;
+      localStorage.setItem('darkMode', JSON.stringify(newMode));
+      return newMode;
+    });
+  }, []);
+
+  // Apply dark mode class to body
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', darkMode);
+  }, [darkMode]);
 
   // Initialize inventory
   const initializeInventory = useCallback((fruitClasses) => {
@@ -343,15 +362,27 @@ function App() {
   const FRUIT_CLASSES = modelConfig?.classes?.map(c => c.toLowerCase()) || [];
 
    return (
-    <div className="App">
+    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
       <div className="container">
         <div className="header">
           <h1>Smart Fruit Bowl</h1>
           <p>AI-Powered Inventory Management System</p>
           
           {/* Status Indicators Row */}
-          <div className="status-row">            
-            {/* ADD THIS: Developer Mode Toggle */}
+          <div className="status-row">
+            {/* Dark Mode Toggle */}
+            <div className="theme-toggle">
+              <button 
+                className={`theme-toggle-btn ${darkMode ? 'active' : ''}`}
+                onClick={toggleDarkMode}
+                aria-label="Toggle dark mode"
+              >
+                <span className="theme-icon">{darkMode ? '☀️' : '🌙'}</span>
+                {darkMode ? 'Light Mode' : 'Dark Mode'}
+              </button>
+            </div>
+            
+            {/* Developer Mode Toggle */}
             <div className="developer-toggle">
               <button 
                 className={`dev-toggle-btn ${developerMode ? 'active' : ''}`}

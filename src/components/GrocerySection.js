@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { FRUIT_STORE_URLS } from '../constants/storeUrls';
 
 function GrocerySection({ inventory }) {
   
@@ -39,22 +40,35 @@ function GrocerySection({ inventory }) {
     console.log('📥 Shopping list exported successfully');
   };
 
+  // Handle clicking on a fruit to open store page
+  const handleFruitClick = (fruit) => {
+    const url = FRUIT_STORE_URLS[fruit];
+    if (url && url !== "https://store.example.com/" + fruit) {
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <div className="grocery-section">
       <h2 className="section-title">🛒 Shopping List</h2>
       
-      <div className="grocery-list">
+      <div className="grocery-list bg-theme-light">
         {lowStockItems.length === 0 ? (
           <p className="empty-message">All fruit levels are adequate! 🎉</p>
         ) : (
           lowStockItems.map(([fruit, data]) => {
             const needed = Math.max(1, data.threshold - data.count + 2);
+            const hasStoreUrl = FRUIT_STORE_URLS[fruit] && FRUIT_STORE_URLS[fruit] !== "https://store.example.com/" + fruit;
             return (
               <div key={fruit} className="grocery-item">
                 <span>
                   {data.emoji} {fruit.charAt(0).toUpperCase() + fruit.slice(1)}
                 </span>
-                <span className="needed-count">
+                <span 
+                  className={`needed-count ${hasStoreUrl ? 'clickable' : ''}`}
+                  onClick={() => hasStoreUrl && handleFruitClick(fruit)}
+                  style={{ cursor: hasStoreUrl ? 'pointer' : 'default' }}
+                >
                   Need: {needed}
                 </span>
               </div>
