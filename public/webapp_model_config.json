@@ -1,30 +1,62 @@
 {
   "models": {
-    "converted_model": {
-      "modelUrl": "./tfjs_best_model/model.json",
-      "inputShape": [
-        150,
-        150,
-        3
-      ],
-      "imageSize": 150,
-      "name": "Converted Model",
-      "description": "Converted from Converted Model"
+    "trained_model": {
+      "modelUrl": "./models/model.json",
+      "inputShape": [64, 64, 3],
+      "imageSize": 64,
+      "name": " My Trained Fruit Model",
+      "description": "Custom trained fruit detection model",
+      "type": "trained",
+      "storage": "filesystem",
+      "priority": 1
+    },
+    "demo": {
+      "modelUrl": "demo",
+      "inputShape": [64, 64, 3],
+      "imageSize": 64,
+      "name": "Demo Simulation Mode",
+      "description": "Simulation mode for testing",
+      "type": "demo",
+      "priority": 3
     }
   },
-  "defaultModel": "converted_model",
+  "defaultModel": "trained_model",
   "classes": [
     "apple",
-    "banana",
-    "kiwi",
-    "mango",
-    "orange",
-    "peach",
-    "pear"
+    "banana", 
+    "orange"
   ],
+  "training": {
+    "enabled": true,
+    "supportedFruits": [
+      "apple", "banana", "orange", "kiwi", "mango", "peach", "pear"
+    ],
+    "minImagesPerClass": 5,
+    "recommendedImagesPerClass": 10,
+    "modelArchitecture": {
+      "inputSize": [64, 64, 3],
+      "epochs": 25,
+      "continuedTrainingEpochs": 10,
+      "batchSize": 8,
+      "learningRate": 0.001,
+      "validationSplit": 0.1
+    }
+  },
   "preprocessing": {
     "normalization": "0-1",
-    "resizeMethod": "bilinear",
-    "description": "Resize to 150x150 and normalize to [0,1] range"
+    "resizeMethod": "nearest",
+    "imageSize": 64
+  },
+  "detection": {
+    "confidenceThreshold": 0.75,
+    "autoDetectionInterval": 1000,
+    "supportsBowlTracking": true,
+    "supportsInventoryUpdates": true
+  },
+  "system": {
+    "modelPersistence": "filesystem",
+    "continuedTraining": true,
+    "autoFallback": true,
+    "description": "File-based AI fruit detection system"
   }
 }
