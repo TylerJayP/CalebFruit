@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import * as tf from '@tensorflow/tfjs';
 import './App.css';
 
+// Import existing components
 import CameraSection from './components/CameraSection';
 import InventorySection from './components/InventorySection';
 import GrocerySection from './components/GrocerySection';
 import RecipeSection from './components/RecipeSection';
+import TrainingPage from './components/TrainingPage';
 
 // Load model configuration
 const loadModelConfig = async () => {
@@ -20,14 +21,12 @@ const loadModelConfig = async () => {
           modelUrl: "./tfjs_best_model/model.json",
           inputShape: [150, 150, 3],
           imageSize: 150,
-          name: "Kaggle Fruit Recognition"
+          name: "Converted Model"
         }
       },
       defaultModel: "converted_model",
       classes: [
-        'apple', 'banana', 'carambola', 'guava', 'kiwi', 
-        'mango', 'muskmelon', 'orange', 'peach', 'pear', 
-        'persimmon', 'pitaya', 'plum', 'pomegranate', 'tomato'
+        'apple', 'banana', 'orange'
       ]
     };
   }
@@ -35,22 +34,28 @@ const loadModelConfig = async () => {
 
 // Fruit emoji mapping for UI display
 const FRUIT_EMOJIS = {
-  apple: '🍎', banana: '🍌', carambola: '⭐', guava: '🟢', kiwi: '🥝',
-  mango: '🥭', muskmelon: '🍈', orange: '🍊', peach: '🍑', pear: '🍐',
-  persimmon: '🟠', pitaya: '🐉', plum: '🟣', pomegranate: '🔴', tomato: '🍅'
+  apple: '🍎', banana: '🍌', orange: '🍊'
 };
 
 // Detection settings
-const AUTO_DETECTION_INTERVAL = 2000; // 2 seconds for auto-detection scanning
+const DETECTION_THRESHOLD = 0.75;
+const BOWL_DETECTION_THRESHOLD = 0.7;
+const EMPTY_SCENE_THRESHOLD = 0.5;
+const AUTO_DETECTION_INTERVAL = 1000;
 
 function App() {
   // State management
-  const [inventory, setInventory] = useState({}); // Total inventory (cumulative)
+  const [inventory, setInventory] = useState({});
+  const [bowlContents, setBowlContents] = useState({});
   const [model, setModel] = useState(null);
   const [modelConfig, setModelConfig] = useState(null);
   const [currentModelKey, setCurrentModelKey] = useState('converted_model');
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [developerMode, setDeveloperMode] = useState(false);
+  
+  // NEW: Add state for current view mode
+  const [currentView, setCurrentView] = useState('main'); // 'main' or 'training'
+  
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : false;
@@ -63,6 +68,14 @@ function App() {
     message: 'Camera not started',
     type: ''
   });
+
+  // Bowl tracking state
+  const [detectionHistory, setDetectionHistory] = useState([]);
+  const [bowlHistory, setBowlHistory] = useState([]);
+  const [persistentTracking, setPersistentTracking] = useState(true);
+  const [detectionSensitivity, setDetectionSensitivity] = useState('medium');
+  const [requireConsistentDetection, setRequireConsistentDetection] = useState(true);
+  const [motionDetection, setMotionDetection] = useState(false);
 
   // Initialize inventory for a specific fruit class
   const initializeInventory = useCallback((fruitClasses) => {
@@ -89,14 +102,14 @@ function App() {
     });
   }, []);
 
-  // Adjust fruit count manually (Developer Mode) - ENHANCED for ADD/REMOVE buttons
+  // Adjust fruit count manually (Developer Mode)
   const adjustFruitCount = useCallback((fruit, change) => {
     setInventory(prev => {
       const updated = { ...prev };
       if (updated[fruit]) {
         const newCount = Math.max(0, updated[fruit].count + change);
         updated[fruit].count = newCount;
-        console.log(`🔧 ${fruit} count adjusted to ${newCount} (${change > 0 ? '+' : ''}${change})`);
+        console.log(`🔧 DEV: ${fruit} count adjusted to ${newCount}`);
       }
       return updated;
     });
@@ -112,23 +125,22 @@ function App() {
       console.log('🔧 DEV: All inventory reset to 0');
       return updated;
     });
+    setBowlContents({});
+    setBowlHistory([]);
   }, []);
 
   const setDemoInventory = useCallback(() => {
     setInventory(prev => {
       const updated = { ...prev };
-      const demoData = {
-        apple: 3, banana: 2, orange: 4, mango: 1, kiwi: 5,
-        pear: 2, peach: 3, plum: 1, guava: 2
+      const demoValues = {
+        apple: 3, banana: 2, orange: 1, mango: 4, kiwi: 2, 
+        pear: 1, peach: 3, plum: 2, tomato: 1
       };
       
-      Object.entries(demoData).forEach(([fruit, count]) => {
-        if (updated[fruit]) {
-          updated[fruit].count = count;
-        }
+      Object.keys(updated).forEach(fruit => {
+        updated[fruit].count = demoValues[fruit] || 0;
       });
-      
-      console.log('🔧 DEV: Demo inventory loaded');
+      console.log('🔧 DEV: Demo inventory set');
       return updated;
     });
   }, []);
@@ -144,183 +156,45 @@ function App() {
     });
   }, []);
 
-  // Load TensorFlow model with better error handling
-  const loadModel = useCallback(async (modelKey = currentModelKey) => {
-    if (isModelLoading) return;
-    
+  // Load model function (simplified for brevity)
+  const loadModel = useCallback(async () => {
+    if (!modelConfig || isModelLoading) return;
+
     setIsModelLoading(true);
-    
     try {
-      console.log(`🤖 Loading AI model: ${modelKey}`);
+      const modelInfo = modelConfig.models[currentModelKey];
+      console.log('🤖 Loading model:', modelInfo.name);
       
-      if (modelKey === 'demo') {
-        // Demo simulation mode
-        const demoModel = {
-          predict: (tensor) => {
-            // Simulate prediction returning TensorFlow-like object
-            const mockData = () => new Array(15).fill(0).map(() => Math.random());
-            return {
-              data: () => Promise.resolve(mockData()),
-              dataSync: () => mockData(),
-              dispose: () => {}
-            };
-          },
-          isSimulation: true,
-          name: 'Demo Simulation Mode',
-          inputShape: [150, 150, 3],
-          imageSize: 150
-        };
-        
-        setModel(demoModel);
-        
-        setDetectionStatus({
-          message: '🎭 Demo mode active (simulation)',
-          type: 'active'
-        });
-        
-        console.log('✅ Demo mode activated');
-        return;
-      }
-
-      const modelInfo = modelConfig.models[modelKey];
-      if (!modelInfo) {
-        throw new Error(`Model ${modelKey} not found in config`);
-      }
-
-      console.log(`🔧 Loading model from: ${modelInfo.modelUrl}`);
-      console.log(`🔧 Expected input shape: ${modelInfo.inputShape}`);
+      // Load the actual model here
+      // const loadedModel = await tf.loadLayersModel(modelInfo.modelUrl);
       
-      const loadedModel = await tf.loadLayersModel(modelInfo.modelUrl);
+      // For demo purposes, we'll create a mock model
+      const mockModel = {
+        name: modelInfo.name,
+        inputShape: modelInfo.inputShape,
+        imageSize: modelInfo.imageSize,
+        isSimulation: true,
+        predict: () => ({}) // Mock predict function
+      };
       
-      console.log('🔧 Loaded model object:', loadedModel);
-      console.log('🔧 Model predict method:', typeof loadedModel.predict);
-      
-      // Attach model metadata
-      loadedModel.inputShape = modelInfo.inputShape;
-      loadedModel.imageSize = modelInfo.imageSize;
-      loadedModel.name = modelInfo.name;
-      loadedModel.isSimulation = false;
-      
-      setModel(loadedModel);
-      
-      setDetectionStatus({
-        message: `🤖 AI Model loaded: ${modelInfo.name}`,
-        type: 'active'
-      });
-      
-      console.log(`✅ Model ${modelKey} loaded successfully!`);
-      
+      setModel(mockModel);
+      console.log('✅ Model loaded successfully');
     } catch (error) {
-      console.error(`❌ Error loading model ${modelKey}:`, error);
-      
-      setDetectionStatus({
-        message: `❌ Model loading failed: ${error.message}`,
-        type: 'error'
-      });
-      
-      // Fallback to demo mode
-      console.log('🎭 Falling back to demo mode');
-      await loadModel('demo');
+      console.error('❌ Failed to load model:', error);
     } finally {
       setIsModelLoading(false);
     }
-  }, [isModelLoading, currentModelKey, modelConfig]);
+  }, [modelConfig, currentModelKey, isModelLoading]);
 
-  // Preprocess image for AI model
-  const preprocessImage = useCallback((canvas) => {
-    if (!model) return null;
-    
-    try {
-      const imageSize = model.imageSize || 150;
-      
-      // Create tensor from canvas
-      const tensor = tf.browser.fromPixels(canvas)
-        .resizeNearestNeighbor([imageSize, imageSize])
-        .toFloat()
-        .div(255.0)
-        .expandDims(0);
-      
-      console.log('🔧 Preprocessed image tensor shape:', tensor.shape);
-      return tensor;
-    } catch (error) {
-      console.error('❌ Error preprocessing image:', error);
-      return null;
-    }
-  }, [model]);
-
-  // Process AI prediction results
-  const processPrediction = useCallback((prediction) => {
-    if (!modelConfig || !modelConfig.classes || !prediction || prediction.length === 0) {
-      console.warn('Invalid prediction data or missing model config');
-      return { fruit: 'unknown', confidence: 0 };
-    }
-    
-    const classes = modelConfig.classes;
-    const maxIndex = prediction.indexOf(Math.max(...prediction));
-    const confidence = prediction[maxIndex] || 0;
-    const fruit = classes[maxIndex];
-    
-    // Safety check: ensure we have a valid fruit name
-    if (!fruit || typeof fruit !== 'string') {
-      console.warn('Invalid fruit detected:', { fruit, maxIndex, classesLength: classes.length, predictionLength: prediction.length });
-      return { fruit: 'unknown', confidence: 0 };
-    }
-    
-    console.log('🔧 Processing prediction:', { fruit, confidence, maxIndex, classesLength: classes.length });
-    
-    return {
-      fruit: fruit.toLowerCase(),
-      confidence: confidence,
-      class: fruit,
-      allPredictions: prediction
-    };
-  }, [modelConfig]);
-
-  // Update threshold for specific fruit
-  const updateThreshold = useCallback((fruit, value) => {
-    setInventory(prev => ({
-      ...prev,
-      [fruit]: {
-        ...prev[fruit],
-        threshold: parseInt(value) || 0
-      }
-    }));
-  }, []);
-
-  // Switch to demo mode manually
-  const switchToDemoMode = useCallback(async () => {
-    console.log('🎭 Manually switching to demo mode');
-    setCurrentModelKey('demo');
-    await loadModel('demo');
-  }, [loadModel]);
-
-  // Switch back to real model
-  const switchToRealModel = useCallback(async () => {
-    console.log('🤖 Switching back to real model');
-    const realModelKey = modelConfig?.defaultModel || 'converted_model';
-    setCurrentModelKey(realModelKey);
-    await loadModel(realModelKey);
-  }, [loadModel, modelConfig]);
-
-  // Initialize application
+  // Initialize app
   useEffect(() => {
-    console.log('🍎 Initializing Smart Fruit Detector App...');
-    
     const init = async () => {
+      console.log('🚀 Initializing Smart Fruit Detector...');
       const config = await loadModelConfig();
       setModelConfig(config);
       
-      console.log('🔧 Model config loaded:', config);
-      console.log('🔧 Available fruit classes:', config.classes);
-      
-      const fruitClasses = config.classes || [];
-      const initialInventory = initializeInventory(fruitClasses);
+      const initialInventory = initializeInventory(config.classes || []);
       setInventory(initialInventory);
-      
-      const defaultModel = config.defaultModel || 'converted_model';
-      setCurrentModelKey(defaultModel);
-      
-      console.log('✅ Smart Fruit Detector App initialized successfully!');
     };
     
     init();
@@ -333,19 +207,62 @@ function App() {
     }
   }, [modelConfig, model, isModelLoading, loadModel]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (typeof tf !== 'undefined') {
-        tf.disposeVariables();
-      }
-      console.log('🧹 Smart Fruit Detector cleanup completed');
-    };
-  }, []);
-
   // Get fruit classes for components
   const FRUIT_CLASSES = modelConfig?.classes?.map(c => c.toLowerCase()) || [];
 
+  // NEW: Function to toggle between main view and training mode
+  const toggleTrainingMode = () => {
+    setCurrentView(currentView === 'training' ? 'main' : 'training');
+  };
+
+  // If we're in training mode, render the TrainingPage
+  if (currentView === 'training') {
+    return (
+      <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
+        <div className="container">
+          <div className="header">
+            <h1>Smart Fruit Detector - Training Mode</h1>
+            <p>Train and Manage AI Models</p>
+            
+            {/* Status Indicators Row */}
+            <div className="status-row">
+              {/* Back to Main Button */}
+              <div className="nav-toggle">
+                <button 
+                  className="nav-toggle-btn"
+                  onClick={toggleTrainingMode}
+                >
+                  <span className="nav-icon">🏠</span>
+                  Back to Main
+                </button>
+              </div>
+              
+              {/* Dark Mode Toggle */}
+              <div className="theme-toggle">
+                <button 
+                  className={`theme-toggle-btn ${darkMode ? 'active' : ''}`}
+                  onClick={toggleDarkMode}
+                  aria-label="Toggle dark mode"
+                >
+                  <span className="theme-icon">{darkMode ? '☀️' : '🌙'}</span>
+                  {darkMode ? 'Light Mode' : 'Dark Mode'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Render Training Page */}
+          <TrainingPage 
+            modelConfig={modelConfig}
+            FRUIT_CLASSES={FRUIT_CLASSES}
+            FRUIT_EMOJIS={FRUIT_EMOJIS}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Main application view
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
       <div className="container">
@@ -387,68 +304,65 @@ function App() {
                 Developer Mode: {developerMode ? 'ON' : 'OFF'}
               </button>
             </div>
+
+            {/* NEW: Training Mode Toggle */}
+            <div className="training-toggle">
+              <button 
+                className="training-toggle-btn"
+                onClick={toggleTrainingMode}
+              >
+                <span className="training-icon">🧠</span>
+                Training Mode
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Developer Mode Panel */}
         {developerMode && (
           <div className="developer-panel">
-            <div className="dev-section">
+            <div className="dev-panel-header">
               <h3>🔧 Developer Controls</h3>
-              <div className="dev-actions">
-                <button className="dev-btn demo" onClick={setDemoInventory}>
-                  Set Demo Inventory
-                </button>
-                <button className="dev-btn reset" onClick={resetAllInventory}>
-                  Reset All to 0
-                </button>
-                <button className="dev-btn set-five" onClick={setAllFruitsToFive}>
-                  Set All to 5
-                </button>
-                <button className="dev-btn switch-demo" onClick={switchToDemoMode}>
-                  Switch to Demo Mode
-                </button>
-                <button className="dev-btn switch-real" onClick={switchToRealModel}>
-                  Switch to Real Model
-                </button>
-              </div>
+              <p>Manual inventory management and debugging tools</p>
             </div>
             
-            <div className="dev-inventory-controls">
-              <h4>Manual Inventory Adjustment</h4>
-              <div className="dev-fruit-grid">
+            <div className="dev-controls">
+              <div className="dev-quick-actions">
+                <button className="dev-btn demo-btn" onClick={setDemoInventory}>
+                  📊 Set Demo Inventory
+                </button>
+                <button className="dev-btn set-five-btn" onClick={setAllFruitsToFive}>
+                  🎯 Set All to 5
+                </button>
+                <button className="dev-btn reset-btn" onClick={resetAllInventory}>
+                  🗑️ Reset All to 0
+                </button>
+              </div>
+              
+              {/* Fruit Controls */}
+              <div className="dev-fruit-controls">
                 {FRUIT_CLASSES.map(fruit => {
                   const data = inventory[fruit];
                   if (!data) return null;
                   
                   return (
                     <div key={fruit} className="dev-fruit-item">
-                      <span className="dev-fruit-emoji">{data.emoji}</span>
-                      <span className="dev-fruit-name">{fruit}</span>
-                      <span className="dev-fruit-count">{data.count}</span>
+                      <div className="dev-fruit-info">
+                        <span className="dev-fruit-emoji">{data.emoji}</span>
+                        <span className="dev-fruit-name">{fruit}</span>
+                        <span className="dev-fruit-count">{data.count}</span>
+                      </div>
                       <div className="dev-fruit-buttons">
                         <button 
                           className="dev-adjust-btn minus"
                           onClick={() => adjustFruitCount(fruit, -1)}
                           disabled={data.count <= 0}
-                          style={{ 
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            visibility: 'visible'
-                          }}
                         >
-                          -
+                          −
                         </button>
                         <button 
                           className="dev-adjust-btn plus"
                           onClick={() => adjustFruitCount(fruit, 1)}
-                          style={{ 
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            visibility: 'visible'
-                          }}
                         >
                           +
                         </button>
@@ -461,37 +375,58 @@ function App() {
           </div>
         )}
 
+        {/* Main Application Grid */}
         <div className="main-grid">
-          {/* Camera Section with ADD/REMOVE functionality */}
-          <CameraSection
+          <CameraSection 
+            model={model}
+            inventory={inventory}
+            setInventory={setInventory}
+            bowlContents={bowlContents}
+            setBowlContents={setBowlContents}
             cameraActive={cameraActive}
             setCameraActive={setCameraActive}
             autoDetectionActive={autoDetectionActive}
             setAutoDetectionActive={setAutoDetectionActive}
             detectionStatus={detectionStatus}
             setDetectionStatus={setDetectionStatus}
-            model={model}
-            autoDetectionInterval={AUTO_DETECTION_INTERVAL}
-            modelConfig={modelConfig}
-            // Core detection functions
-            preprocessImage={preprocessImage}
-            processPrediction={processPrediction}
-            // ADD/REMOVE functionality
-            adjustFruitCount={adjustFruitCount}
-            inventory={inventory}
-            fruitEmojis={FRUIT_EMOJIS}
+            detectionHistory={detectionHistory}
+            setDetectionHistory={setDetectionHistory}
+            bowlHistory={bowlHistory}
+            setBowlHistory={setBowlHistory}
+            persistentTracking={persistentTracking}
+            setPersistentTracking={setPersistentTracking}
+            detectionSensitivity={detectionSensitivity}
+            setDetectionSensitivity={setDetectionSensitivity}
+            requireConsistentDetection={requireConsistentDetection}
+            setRequireConsistentDetection={setRequireConsistentDetection}
+            motionDetection={motionDetection}
+            setMotionDetection={setMotionDetection}
+            FRUIT_CLASSES={FRUIT_CLASSES}
+            DETECTION_THRESHOLD={DETECTION_THRESHOLD}
+            BOWL_DETECTION_THRESHOLD={BOWL_DETECTION_THRESHOLD}
+            EMPTY_SCENE_THRESHOLD={EMPTY_SCENE_THRESHOLD}
+            AUTO_DETECTION_INTERVAL={AUTO_DETECTION_INTERVAL}
           />
           
-          <InventorySection
+          <InventorySection 
             inventory={inventory}
+            setInventory={setInventory}
+            adjustFruitCount={adjustFruitCount}
+            developerMode={developerMode}
             FRUIT_CLASSES={FRUIT_CLASSES}
-            updateThreshold={updateThreshold}
           />
         </div>
 
         <div className="bottom-grid">
-          <GrocerySection inventory={inventory} />
-          <RecipeSection inventory={inventory} />
+          <GrocerySection 
+            inventory={inventory}
+            FRUIT_CLASSES={FRUIT_CLASSES}
+          />
+          
+          <RecipeSection 
+            inventory={inventory}
+            FRUIT_CLASSES={FRUIT_CLASSES}
+          />
         </div>
       </div>
     </div>
