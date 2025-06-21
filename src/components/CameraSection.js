@@ -28,8 +28,7 @@ function CameraSection({
 
   // Fruit emoji mapping - fallback if not provided via props
   const defaultFruitEmojis = {
-    apple: '🍎', banana: '🍌', kiwi: '🥝',
-    mango: '🥭', orange: '🍊', peach: '🍑', pear: '🍐'
+    apple: '🍎', banana: '🍌', orange: '🍊'
   };
   const finalFruitEmojis = fruitEmojis || defaultFruitEmojis;
 
