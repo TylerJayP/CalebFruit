@@ -1,0 +1,35 @@
+{
+  "name": "calebfruit-4class-model-1750495745331",
+  "version": "1.0",
+  "description": "Custom trained CalebFruit detection model with background detection",
+  "classes": [
+    "apple",
+    "banana",
+    "orange",
+    "background"
+  ],
+  "inputShape": [
+    64,
+    64,
+    3
+  ],
+  "imageSize": 64,
+  "architecture": {
+    "layers": 9,
+    "totalParams": 646468,
+    "layerTypes": [
+      "Conv2D",
+      "MaxPooling2D",
+      "Conv2D",
+      "MaxPooling2D",
+      "Conv2D",
+      "Flatten",
+      "Dense",
+      "Dropout",
+      "Dense"
+    ]
+  },
+  "trainedDate": "2025-06-21T08:49:05.496Z",
+  "framework": "TensorFlow.js",
+  "format": "layers-model"
+}
