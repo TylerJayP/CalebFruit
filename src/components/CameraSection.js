@@ -33,96 +33,90 @@ function CameraSection({
   const finalFruitEmojis = fruitEmojis || defaultFruitEmojis;
 
   // Simple fruit detection for ADD/REMOVE functionality
-  const analyzeFruit = useCallback(async () => {
-    if (!cameraActive || !videoRef.current || !model || !modelConfig) {
-      console.log('❌ Missing requirements for detection:', {
-        cameraActive,
-        videoReady: !!videoRef.current,
-        modelLoaded: !!model,
-        configLoaded: !!modelConfig
-      });
-      return;
-    }
-    
-    setIsAnalyzing(true);
-    
-    try {
-      const video = videoRef.current;
-      if (video.readyState >= 2) {
-        console.log('🔍 Starting fruit analysis...');
-        
-        // Create canvas for image processing
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        // Draw current video frame
-        ctx.drawImage(video, 0, 0);
-        
-        // Use preprocessImage function from App.js
-        const imageTensor = preprocessImage(canvas);
-        if (!imageTensor) {
-          console.warn('Failed to preprocess image');
-          return;
-        }
-        
-        // Make prediction
-        const predictionResult = model.predict(imageTensor);
-        const prediction = await predictionResult.data();
-        
-        // Clean up tensors
-        imageTensor.dispose();
-        if (predictionResult.dispose) {
-          predictionResult.dispose();
-        }
-        
-        // Process prediction
-        const result = processPrediction(prediction);
-        
-        console.log('🔍 Detection result:', result);
-        
-        // Set detected fruit for ADD/REMOVE buttons
-        if (result.confidence > 0.5 && result.fruit && result.fruit !== 'unknown') {
-          setDetectedFruit({
-            name: result.fruit,
-            confidence: result.confidence,
-            emoji: finalFruitEmojis[result.fruit.toLowerCase()] || '🍎'
-          });
-          
-          const emoji = finalFruitEmojis[result.fruit.toLowerCase()] || '🍎';
-          setDetectionStatus({
-            message: `${emoji} Detected: ${result.fruit.charAt(0).toUpperCase() + result.fruit.slice(1)} (${(result.confidence * 100).toFixed(1)}%)`,
-            type: 'active'
-          });
-        } else {
-          setDetectedFruit(null);
-          if (result.fruit === 'unknown') {
-            setDetectionStatus({
-              message: '❓ Could not identify object - try adjusting camera angle',
-              type: 'active'
-            });
-          } else {
-            setDetectionStatus({
-              message: '🔍 No fruit detected with sufficient confidence',
-              type: 'active'
-            });
-          }
-        }
-      } else {
-        console.log('❌ Video not ready, readyState:', video.readyState);
+const analyzeFruit = useCallback(async () => {
+  if (!cameraActive || !videoRef.current || !model || !modelConfig) {
+    return;
+  }
+  
+  setIsAnalyzing(true);
+  
+  try {
+    const video = videoRef.current;
+    if (video.readyState >= 2) {
+      console.log('🔍 Starting fruit analysis...');
+      
+      // Create canvas for image processing
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // Draw current video frame
+      ctx.drawImage(video, 0, 0);
+      
+      // Use preprocessImage function
+      const imageTensor = preprocessImage(canvas);
+      if (!imageTensor) {
+        console.warn('Failed to preprocess image');
+        return;
       }
-    } catch (error) {
-      console.error('❌ Fruit analysis error:', error);
-      setDetectionStatus({
-        message: `❌ Analysis error: ${error.message}`,
-        type: 'error'
-      });
-      setDetectedFruit(null);
-    } finally {
-      setIsAnalyzing(false);
+      
+      // Make prediction
+      const predictionResult = model.predict(imageTensor);
+      const prediction = await predictionResult.data();
+      
+      // Clean up tensors
+      imageTensor.dispose();
+      if (predictionResult.dispose) {
+        predictionResult.dispose();
+      }
+      
+      // Process prediction
+      const result = processPrediction(prediction);
+      
+      console.log('🔍 Detection result:', result);
+      
+      // Handle different detection results
+      if (result.fruit === 'background') {
+        // Background detected - no fruit present
+        setDetectedFruit(null);
+        setDetectionStatus({
+          message: `🚫 ${result.message} (${(result.confidence * 100).toFixed(1)}% confidence)`,
+          type: 'active'
+        });
+      } else if (result.fruit === 'unknown') {
+        // Low confidence or uncertain detection
+        setDetectedFruit(null);
+        setDetectionStatus({
+          message: `🤔 ${result.message} (${(result.confidence * 100).toFixed(1)}% confidence)`,
+          type: 'active'
+        });
+      } else {
+        // Valid fruit detection
+        setDetectedFruit({
+          name: result.fruit,
+          confidence: result.confidence,
+          emoji: fruitEmojis[result.fruit.toLowerCase()] || '🍎'
+        });
+        
+        const emoji = fruitEmojis[result.fruit.toLowerCase()] || '🍎';
+        setDetectionStatus({
+          message: `${emoji} Detected: ${result.fruit.charAt(0).toUpperCase() + result.fruit.slice(1)} (${(result.confidence * 100).toFixed(1)}%)`,
+          type: 'active'
+        });
+      }
     }
-  }, [cameraActive, model, modelConfig, preprocessImage, processPrediction, setDetectionStatus, finalFruitEmojis]);
+  } catch (error) {
+    console.error('❌ Fruit analysis error:', error);
+    setDetectionStatus({
+      message: `❌ Analysis error: ${error.message}`,
+      type: 'error'
+    });
+    setDetectedFruit(null);
+  } finally {
+    setIsAnalyzing(false);
+  }
+}, [cameraActive, model, modelConfig, preprocessImage, processPrediction, setDetectionStatus, fruitEmojis]);
 
   // Real-time detection function (for auto-detect mode - shows detected fruits but doesn't modify inventory)
   const detectFruitsRealTime = useCallback(async () => {

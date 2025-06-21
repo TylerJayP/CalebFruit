@@ -1144,6 +1144,187 @@ body::before {
   color: #e2e8f0;
 }
 
+/* Background Training Instructions */
+.background-instructions {
+  background: rgba(255, 193, 7, 0.1);
+  border: 2px solid rgba(255, 193, 7, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease-out;
+  backdrop-filter: blur(5px);
+}
+
+.background-instructions h5 {
+  margin: 0 0 15px 0;
+  color: #d69e2e;
+  fontSize: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Background Training Tips Grid */
+.background-tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.background-tip {
+  background: rgba(214, 158, 46, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #d69e2e;
+  border: 1px solid rgba(214, 158, 46, 0.2);
+  transition: all 0.2s ease;
+}
+
+.background-tip:hover {
+  background: rgba(214, 158, 46, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Background Button Styling */
+.background-btn {
+  background: linear-gradient(45deg, #6c757d, #495057) !important;
+  color: white !important;
+  border: 2px solid #495057 !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.background-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.background-btn:hover::before {
+  left: 100%;
+}
+
+.background-btn:hover {
+  background: linear-gradient(45deg, #495057, #343a40) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+.background-btn.active {
+  background: linear-gradient(45deg, #343a40, #212529) !important;
+  border-color: #212529 !important;
+  box-shadow: 0 0 15px rgba(52, 58, 64, 0.5);
+}
+
+/* Enhanced Fruit Button Layout */
+.fruit-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  padding: 12px;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.fruit-btn .fruit-emoji {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.fruit-btn span:not(.fruit-emoji) {
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Background Goal Section */
+.background-goal {
+  background: rgba(214, 158, 46, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(214, 158, 46, 0.3);
+  margin-top: 15px;
+}
+
+.background-goal strong {
+  color: #d69e2e;
+  font-weight: 700;
+}
+
+/* Slide-in Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Dataset Grid for Background */
+.dataset-card.background-card {
+  border: 2px solid #6c757d;
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(73, 80, 87, 0.1));
+}
+
+.dataset-card.background-card.ready {
+  border-color: #28a745;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(25, 135, 84, 0.1));
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .background-instructions {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .background-tips-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .background-tip {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .fruit-btn {
+    min-height: 70px;
+    padding: 10px;
+  }
+  
+  .fruit-btn .fruit-emoji {
+    font-size: 1.5rem;
+  }
+}
+
+/* Training Progress Enhancements for Background */
+.training-status.background-training {
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(73, 80, 87, 0.1));
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+/* Success State for Background Training */
+.background-training-complete {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(25, 135, 84, 0.1));
+  border: 2px solid rgba(40, 167, 69, 0.4);
+  color: #28a745;
+  animation: pulse 2s infinite;
+}
+
 .image-count {
   font-size: 1.4rem;
   font-weight: bold;

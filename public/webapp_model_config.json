@@ -4,8 +4,8 @@
       "modelUrl": "./models/model.json",
       "inputShape": [64, 64, 3],
       "imageSize": 64,
-      "name": " My Trained Fruit Model",
-      "description": "Custom trained fruit detection model",
+      "name": "My Trained Fruit Model",
+      "description": "Custom trained fruit detection model with background detection",
       "type": "trained",
       "storage": "filesystem",
       "priority": 1
@@ -24,12 +24,13 @@
   "classes": [
     "apple",
     "banana", 
-    "orange"
+    "orange",
+    "background"
   ],
   "training": {
     "enabled": true,
     "supportedFruits": [
-      "apple", "banana", "orange", "kiwi", "mango", "peach", "pear"
+      "apple", "banana", "orange", "background"
     ],
     "minImagesPerClass": 5,
     "recommendedImagesPerClass": 10,
@@ -51,12 +52,7 @@
     "confidenceThreshold": 0.75,
     "autoDetectionInterval": 1000,
     "supportsBowlTracking": true,
-    "supportsInventoryUpdates": true
-  },
-  "system": {
-    "modelPersistence": "filesystem",
-    "continuedTraining": true,
-    "autoFallback": true,
-    "description": "File-based AI fruit detection system"
+    "supportsInventoryUpdates": true,
+    "backgroundDetection": true
   }
 }
