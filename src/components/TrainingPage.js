@@ -365,6 +365,13 @@ const TrainingPage = ({ modelConfig, FRUIT_CLASSES, FRUIT_EMOJIS, onModelTrained
       model = existingModel;
       trainingMode = 'continued';
       setStatus('🔄 Loading existing model for continued training...');
+      console.log('🔧 Re-compiling existing model for training...');
+      model.compile({
+        optimizer: tf.train.adam(MODEL_CONFIG.learningRate),
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy']
+      });
+  console.log('✅ Existing model re-compiled for training');
     } else {
       if (existingModel && existingModelOutputs !== currentClassCount) {
         console.log(`🆕 Creating new model - class count mismatch (old: ${existingModelOutputs}, new: ${currentClassCount})`);
