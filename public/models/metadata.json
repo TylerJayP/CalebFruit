@@ -1,5 +1,5 @@
 {
-  "name": "calebfruit-4class-model-1750495745331",
+  "name": "calebfruit-4class-model-1750641140041",
   "version": "1.0",
   "description": "Custom trained CalebFruit detection model with background detection",
   "classes": [
@@ -29,7 +29,7 @@
       "Dense"
     ]
   },
-  "trainedDate": "2025-06-21T08:49:05.496Z",
+  "trainedDate": "2025-06-23T01:12:20.079Z",
   "framework": "TensorFlow.js",
   "format": "layers-model"
 }
