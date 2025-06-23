@@ -343,7 +343,7 @@
     }
   ],
   "userDefinedMetadata": {
-    "name": "calebfruit-4class-model-1750641140041",
+    "name": "calebfruit-4class-model-1750705292422",
     "classes": [
       "apple",
       "banana",
@@ -356,6 +356,6 @@
       3
     ],
     "imageSize": 64,
-    "trainedDate": "2025-06-23T01:12:20.078Z"
+    "trainedDate": "2025-06-23T19:01:32.453Z"
   }
 }
